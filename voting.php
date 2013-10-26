@@ -19,9 +19,6 @@ define('VOTEMEPATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 function voteme_enqueuescripts() {
     wp_enqueue_script('voteme', VOTEMESURL.'/js/voting.js', array('jquery'));
     wp_localize_script( 'voteme', 'votemeajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
-    
-    wp_register_script('jquery-cookie', VOTEMESURL . '/js/vendors/jquery-cookie/jquery-cookie.js', array('jquery'));
-    wp_enqueue_script('jquery-cookie');
 }
 add_action('wp_enqueue_scripts', 'voteme_enqueuescripts');
 
