@@ -128,9 +128,9 @@ add_action( 'manage_posts_custom_column', 'voteme_post_column_row', 10, 2 );
 
 //allow sorting of row
 
-//add_filter('manage_edit-post_sortable_columns', 'voteme_post_sortable_columns');
+add_filter('manage_edit-post_sortable_columns', 'voteme_post_sortable_columns');
 function voteme_post_sortable_columns($columns) {
-	$columns['votemecount'] = votemecount;
+	$columns['votemecount'] = 'votemecount';
 	return $columns;
 }
 
