@@ -9,10 +9,15 @@ function votemeaddvote(postId) {
 		},
  
 		success:function(data, textStatus, XMLHttpRequest){
-
-		    var linkid = '#voteme-' + postId;
-		    jQuery(linkid).html('');
-		    jQuery(linkid).append(data);
+		    jQuery( 'span[data-postid=' + postId + ']' ).text( data );
+		    jQuery('a[data-role=vote-me]')
+		    .unbind('click.voteme')
+		    .attr('data-role', 'remove-vote')
+		    .bind('click.removevote', function(e){
+		    	e.preventDefault();
+		    	removeVoteHandler( jQuery(this).data('postid') );
+		    })
+		    .html('Remove Vote');
 	    },
 
 	    error: function(MLHttpRequest, textStatus, errorThrown){
@@ -41,12 +46,49 @@ function removecookie() {
 	});
 }
 
+function removeVoteHandler( postId ){
+	"use strict";
+
+	jQuery.ajax({
+
+	    type: 'POST',
+	    url: votemeajax.ajaxurl,
+	    data: {
+		    action: 'voteme_removevote',
+		    postid: postId
+		},
+ 
+		success:function(data, textStatus, XMLHttpRequest){
+		    jQuery( 'span[data-postid=' + postId + ']' ).text( data );
+		    jQuery('a[data-role=remove-vote]')
+		    .unbind('click.removevote')
+		    .data('role', 'vote-me')
+		    .bind('click.voteme', function(e){
+		    	e.preventDefault();
+		    	var postId = jQuery(this).data('postid');
+				votemeaddvote( postId );
+		    })
+		    .html('Vote');
+	    },
+
+	    error: function(MLHttpRequest, textStatus, errorThrown){
+	        alert(errorThrown);
+        }
+    });
+
+}
+
 jQuery(document).ready(function($){
 	"use strict";
 
-	$('a[data-role=vote-me]').click(function(e){
+	$('a[data-role=vote-me]').bind('click.voteme', function(e){
 		e.preventDefault();
-		votemeaddvote( $(this).data('postid') );
-		setcookie();
+		var postId = $(this).data('postid');
+		votemeaddvote( postId );
+	});
+
+	$('a[data-role=remove-vote]').bind('click.removevote', function(e){
+		e.preventDefault();
+		removeVoteHandler( $(this).data('postid') );
 	});
 });
