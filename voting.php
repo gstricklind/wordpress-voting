@@ -29,22 +29,22 @@ add_action('wp_enqueue_scripts', 'voteme_enqueuescripts');
 /* Adding vote link to all posts */
 function voteme_getvotelink() {
 	$votemelink = "";
-	 
+
 	$post_ID = get_the_ID();
 	$votemecount = get_post_meta($post_ID, '_votemecount', true) != '' ? get_post_meta($post_ID, '_votemecount', true) : '0';
 	
-	if (isset($_COOKIE['the_cookie'])) {
+	if (isset($_COOKIE['post_' . $post_ID])) {
 		//show remove vote link and decrease count by 1 if post has been voted for
-		$link = '<a onclick="removecookie();">' . 'Remove Vote' . '</a>';
+		$link = '<a href="#" data-role="remove-vote" data-postid="' . $post_ID . '">' . 'Remove Vote' . '</a>';
 	} else {
 		$link = '<a href="#" data-role="vote-me" data-postid="' . $post_ID . '">Vote</a>';
 	}
 	 
 	$votemelink = '<div id="vote-me">';
-	$votemelink .= '<p><span class="vote-count">' . $votemecount . '</span> vote(s) | ' . $link . '</p>';
+	$votemelink .= '<p><span class="vote-count" data-postid="' . $post_ID . '">' . $votemecount . '</span> vote(s) | ' . $link . '</p>';
 	$votemelink .= '</div>';
 	 
-	return $votemelink;
+	return '<pre>' . print_r( $_COOKIE, true ) . '</pre>' . $votemelink;
 }
 
 
@@ -57,17 +57,28 @@ add_filter('the_content', 'voteme_printvotelink');
 
 /* Using AJAX */
 function voteme_addvote() {
-    $results = '';
+
+	/**
+	 * Add some kind of check if cookie has already been set? But then, clearing cookies is easy...
+	 */
+
     global $wpdb;
     $post_ID = $_POST['postid'];
     $votemecount = get_post_meta($post_ID, '_votemecount', true) != '' ? get_post_meta($post_ID, '_votemecount', true) : '0';
     $votemecountNew = $votemecount + 1;
     update_post_meta($post_ID, '_votemecount', $votemecountNew);
 
-    $results.='<div class="votescore" >' . $votemecountNew . '</div>';
+    # Use PHP instead of the jQuery Cookie library?
+    setcookie( 'post_' . $post_ID, '1', time() + 60 * 60 * 24 * 30 * 6, '/' ); # set to 6 months
 
-    // Return the String
-    die($results);
+    # returns the new number of votes
+    /**
+     * @todo: fix or not?
+	 * You can't pass an integer in die http://stackoverflow.com/a/6913336/1370034
+	 *
+	 * Casting as string
+     */
+    die( '' . $votemecountNew );
 }
 
  
@@ -75,6 +86,26 @@ function voteme_addvote() {
 add_action( 'wp_ajax_nopriv_voteme_addvote', 'voteme_addvote' );
 add_action( 'wp_ajax_voteme_addvote', 'voteme_addvote' );
 
+
+function voteme_removevote() {
+
+    global $wpdb;
+    $post_ID = $_POST['postid'];
+    $votemecount = get_post_meta($post_ID, '_votemecount', true) != '' ? get_post_meta($post_ID, '_votemecount', true) : '0';
+    $votemecountNew = $votemecount - 1;
+    update_post_meta($post_ID, '_votemecount', $votemecountNew);
+
+    # Use PHP instead of the jQuery Cookie library?
+    setcookie( 'post_' . $post_ID, '1', time() - 1000, '/' );
+
+    # returns the new number of votes
+    die( '' . $votemecountNew );
+}
+
+ 
+// creating Ajax call for WordPress
+add_action( 'wp_ajax_nopriv_voteme_removevote', 'voteme_removevote' );
+add_action( 'wp_ajax_voteme_removevote', 'voteme_removevote' );
 
 
 /* Admin Panel */
