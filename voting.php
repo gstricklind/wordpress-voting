@@ -23,7 +23,7 @@ function voteme_enqueuescripts() {
     wp_register_script('jquery-cookie', VOTEMESURL . '/js/vendors/jquery-cookie/jquery-cookie.js', array('jquery'));
     wp_enqueue_script('jquery-cookie');
 }
-add_action('wp_enqueue_scripts', voteme_enqueuescripts);
+add_action('wp_enqueue_scripts', 'voteme_enqueuescripts');
 
 
 /* Adding vote link to all posts */
@@ -37,11 +37,11 @@ function voteme_getvotelink() {
 		//show remove vote link and decrease count by 1 if post has been voted for
 		$link = '<a onclick="removecookie();">' . 'Remove Vote' . '</a>';
 	} else {
-		$link = '<a onclick="votemeaddvote(' . $post_ID . '); setcookie();">' . 'Vote' . '</a>';
-	};
+		$link = '<a href="#" data-role="vote-me" data-postid="' . $post_ID . '">Vote</a>';
+	}
 	 
-	$votemelink = '<div id="voteme-' . $post_ID . '">';
-	$votemelink .= '<span>' . $votemecount . ' vote(s) | ' . $link . '</span>';
+	$votemelink = '<div id="vote-me">';
+	$votemelink .= '<p><span class="vote-count">' . $votemecount . '</span> vote(s) | ' . $link . '</p>';
 	$votemelink .= '</div>';
 	 
 	return $votemelink;
@@ -51,7 +51,7 @@ function voteme_getvotelink() {
 function voteme_printvotelink($content) {
 	return $content.voteme_getvotelink();
 }
-add_filter('the_content', voteme_printvotelink);
+add_filter('the_content', 'voteme_printvotelink');
 
 
 
@@ -99,7 +99,8 @@ function voteme_post_column_row($column) {
 add_action( 'manage_posts_custom_column', 'voteme_post_column_row', 10, 2 );
 
 //allow sorting of row
-add_filter('manage_edit-post_sortable_columns', 'voteme_post_sortable_columns');
+
+//add_filter('manage_edit-post_sortable_columns', 'voteme_post_sortable_columns');
 function voteme_post_sortable_columns($columns) {
 	$columns['votemecount'] = votemecount;
 	return $columns;
