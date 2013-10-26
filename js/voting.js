@@ -40,3 +40,13 @@ function removecookie() {
 		});
 	});
 }
+
+jQuery(document).ready(function($){
+	"use strict";
+
+	$('a[data-role=vote-me]').click(function(e){
+		e.preventDefault();
+		votemeaddvote( $(this).data('postid') );
+		setcookie();
+	});
+});
