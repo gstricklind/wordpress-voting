@@ -11,6 +11,7 @@ function votemeaddvote(postId) {
 		success:function(data, textStatus, XMLHttpRequest){
 		    jQuery( 'span[data-postid=' + postId + ']' ).text( data );
 		    jQuery('a[data-role=vote-me]')
+		    .filter( '[data-postid=' + postId + ']' )
 		    .unbind('click.voteme')
 		    .attr('data-role', 'remove-vote')
 		    .bind('click.removevote', function(e){
@@ -26,25 +27,6 @@ function votemeaddvote(postId) {
     });
 }
 
-function setcookie() {
-	jQuery("#voteme-1").click(function(e) {
-		if (jQuery.cookie('the_cookie')) { 
-			jQuery.cookie('the_cookie', null) 
-		}
-		jQuery.cookie('the_cookie', 1, {
-			expires: 180, // 6 months
-			path: '/',
-		});
-	});
-}
-
-function removecookie() {
-	jQuery("#voteme-1").click(function(e) {
-		jQuery.removeCookie('the_cookie', {
-			path: '/',
-		});
-	});
-}
 
 function removeVoteHandler( postId ){
 	"use strict";
@@ -61,8 +43,9 @@ function removeVoteHandler( postId ){
 		success:function(data, textStatus, XMLHttpRequest){
 		    jQuery( 'span[data-postid=' + postId + ']' ).text( data );
 		    jQuery('a[data-role=remove-vote]')
+		    .filter( '[data-postid=' + postId + ']' )
 		    .unbind('click.removevote')
-		    .data('role', 'vote-me')
+		    .attr('data-role', 'vote-me')
 		    .bind('click.voteme', function(e){
 		    	e.preventDefault();
 		    	var postId = jQuery(this).data('postid');
