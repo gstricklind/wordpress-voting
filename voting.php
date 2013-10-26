@@ -44,7 +44,7 @@ function voteme_getvotelink() {
 	$votemelink .= '<p><span class="vote-count" data-postid="' . $post_ID . '">' . $votemecount . '</span> vote(s) | ' . $link . '</p>';
 	$votemelink .= '</div>';
 	 
-	return '<pre>' . print_r( $_COOKIE, true ) . '</pre>' . $votemelink;
+	return $votemelink;
 }
 
 
